@@ -520,6 +520,7 @@ func handleToolsCommand(mcpClients map[string]*mcpclient.StdioMCPClient) {
 	// Wrap the entire content in the container
 	fmt.Print("\n" + containerStyle.Render(l.String()) + "\n")
 }
+
 func displayMessageHistory(messages interface{}) {
 	if err := updateRenderer(); err != nil {
 		fmt.Printf(
