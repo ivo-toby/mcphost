@@ -60,8 +60,9 @@ var (
 
 type MCPConfig struct {
 	MCPServers map[string]struct {
-		Command string   `json:"command"`
-		Args    []string `json:"args"`
+		Command string            `json:"command"`
+		Args    []string         `json:"args"`
+		Env     map[string]string `json:"env,omitempty"`
 	} `json:"mcpServers"`
 }
 
@@ -148,9 +149,17 @@ func createMCPClients(
 	clients := make(map[string]*mcpclient.StdioMCPClient)
 
 	for name, server := range config.MCPServers {
+		// Create environment for the client
+		env := os.Environ() // Start with current environment
+		for key, value := range server.Env {
+			env = append(env, fmt.Sprintf("%s=%s", key, value))
+		}
+
 		client, err := mcpclient.NewStdioMCPClient(
 			server.Command,
-			server.Args...)
+			append([]string{}, server.Args...)...,
+			mcpclient.WithEnv(env),
+		)
 		if err != nil {
 			for _, c := range clients {
 				c.Close()
