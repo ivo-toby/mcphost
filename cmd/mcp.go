@@ -141,9 +141,7 @@ func loadMCPConfig() (*MCPConfig, error) {
 	return &config, nil
 }
 
-func createMCPClients(
-	config *MCPConfig,
-) (map[string]*mcpclient.StdioMCPClient, error) {
+func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, error) {
 	clients := make(map[string]*mcpclient.StdioMCPClient)
 
 	for name, server := range config.MCPServers {
@@ -171,11 +169,7 @@ func createMCPClients(
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		if rootCmd.Flags().Lookup("verbose").Value.String() == "true" {
-			log.Info("Initializing server with verbose logging...", "name", name, "command", server.Command, "args", server.Args, "env", server.Env)
-		} else {
-			log.Info("Initializing server...", "name", name)
-		}
+		log.Info("Initializing server...", "name", name)
 		initRequest := mcp.InitializeRequest{}
 		initRequest.Params.ProtocolVersion = mcp.LATEST_PROTOCOL_VERSION
 		initRequest.Params.ClientInfo = mcp.Implementation{

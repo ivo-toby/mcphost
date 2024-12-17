@@ -34,6 +34,13 @@ const (
 	maxRetries     = 5 // Will reach close to max backoff
 )
 
+func isVerbose() bool {
+	if flag := rootCmd.Flags().Lookup("verbose"); flag != nil {
+		return flag.Value.String() == "true"
+	}
+	return false
+}
+
 var rootCmd = &cobra.Command{
 	Use:   "mcphost",
 	Short: "Chat with Claude 3.5 Sonnet or Ollama models",
