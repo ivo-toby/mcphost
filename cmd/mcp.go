@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"time"
 
@@ -346,10 +347,11 @@ func handleHelpCommand() error {
 			"\n%s\n",
 			errorStyle.Render(fmt.Sprintf("Error rendering help: %v", err)),
 		)
-		return
+		return err
 	}
 
 	fmt.Print(rendered)
+	return nil
 }
 
 func handleServersCommand(config *MCPConfig) {
