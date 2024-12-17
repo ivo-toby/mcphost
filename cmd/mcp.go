@@ -159,10 +159,18 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 				"env", server.Env)
 		}
 		
+		// Join environment variables with proper format
+		envString := strings.Join(processEnv, "\n")
+		if isVerboseEnabled {
+			log.Info("Environment string for server", 
+				"name", name,
+				"env", envString)
+		}
+		
 		client, err := mcpclient.NewStdioMCPClient(
 			server.Command,
 			strings.Join(server.Args, " "),
-			strings.Join(processEnv, "\n"))
+			envString)
 		if err != nil {
 			errMsg := fmt.Sprintf("failed to create MCP client for %s: %v", name, err)
 			log.Error(errMsg)
