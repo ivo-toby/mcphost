@@ -62,6 +62,8 @@ func init() {
 		StringVar(&configFile, "config", "", "config file (default is $HOME/mcp.json)")
 	rootCmd.PersistentFlags().
 		IntVar(&messageWindow, "message-window", 10, "number of messages to keep in context")
+	rootCmd.PersistentFlags().
+		Bool("verbose", false, "enable verbose logging")
 }
 
 func pruneMessages[T MessageParam | api.Message](messages []T) []T {
