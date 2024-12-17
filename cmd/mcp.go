@@ -169,7 +169,15 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		log.Info("Initializing server...", "name", name)
+		if isVerbose() {
+			log.Info("Starting server initialization...", 
+				"name", name,
+				"command", server.Command,
+				"args", server.Args,
+				"env", server.Env)
+		} else {
+			log.Info("Initializing server...", "name", name)
+		}
 		initRequest := mcp.InitializeRequest{}
 		initRequest.Params.ProtocolVersion = mcp.LATEST_PROTOCOL_VERSION
 		initRequest.Params.ClientInfo = mcp.Implementation{
@@ -182,6 +190,12 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 			client.Close()
 			for _, c := range clients {
 				c.Close()
+			}
+			if isVerbose() {
+				log.Error("Failed to initialize MCP client",
+					"name", name,
+					"error", err,
+					"timeout", "30s")
 			}
 			return nil, fmt.Errorf(
 				"failed to initialize MCP client for %s: %w",
