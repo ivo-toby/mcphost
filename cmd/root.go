@@ -46,12 +46,6 @@ It supports various tools through MCP servers and provides streaming responses.`
 	},
 }
 
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		os.Exit(1)
-	}
-}
-
 func init() {
 	rootCmd.PersistentFlags().
 		StringVar(&configFile, "config", "", "config file (default is $HOME/mcp.json)")
@@ -60,6 +54,12 @@ func init() {
 	verboseFlag := rootCmd.PersistentFlags().Bool("verbose", false, "enable verbose logging")
 	rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
 		isVerboseEnabled = *verboseFlag
+	}
+}
+
+func Execute() {
+	if err := rootCmd.Execute(); err != nil {
+		os.Exit(1)
 	}
 }
 
