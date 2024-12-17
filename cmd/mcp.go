@@ -315,6 +315,7 @@ func handleSlashCommand(prompt string, mcpConfig *MCPConfig, mcpClients map[stri
 			errorStyle.Render("Unknown command: "+prompt))
 		return true, nil
 	}
+	return false, nil
 }
 
 func handleHelpCommand() error {
