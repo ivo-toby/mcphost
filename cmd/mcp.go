@@ -151,19 +151,29 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 			env = append(env, fmt.Sprintf("%s=%s", key, value))
 		}
 
+		if isVerboseEnabled {
+			log.Info("Creating MCP client",
+				"name", name,
+				"command", server.Command,
+				"args", strings.Join(server.Args, " "),
+				"env", strings.Join(env, " "))
+		}
+		
 		client, err := mcpclient.NewStdioMCPClient(
 			server.Command,
 			strings.Join(server.Args, " "),
 			strings.Join(env, " "))
 		if err != nil {
+			errMsg := fmt.Sprintf("failed to create MCP client for %s: %v", name, err)
+			log.Error(errMsg)
 			for _, c := range clients {
 				c.Close()
 			}
-			return nil, fmt.Errorf(
-				"failed to create MCP client for %s: %w",
-				name,
-				err,
-			)
+			return nil, fmt.Errorf(errMsg)
+		}
+		
+		if isVerboseEnabled {
+			log.Info("MCP client created successfully", "name", name)
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -185,23 +195,30 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 			Version: "0.1.0",
 		}
 
-		_, err = client.Initialize(ctx, initRequest)
+		if isVerboseEnabled {
+			log.Info("Sending initialize request", 
+				"name", name,
+				"request", fmt.Sprintf("%+v", initRequest))
+		}
+
+		resp, err := client.Initialize(ctx, initRequest)
 		if err != nil {
+			errMsg := fmt.Sprintf("failed to initialize MCP client for %s: %v", name, err)
+			log.Error(errMsg,
+				"name", name,
+				"error", err,
+				"timeout", "30s")
 			client.Close()
 			for _, c := range clients {
 				c.Close()
 			}
-			if isVerboseEnabled {
-				log.Error("Failed to initialize MCP client",
-					"name", name,
-					"error", err,
-					"timeout", "30s")
-			}
-			return nil, fmt.Errorf(
-				"failed to initialize MCP client for %s: %w",
-				name,
-				err,
-			)
+			return nil, fmt.Errorf(errMsg)
+		}
+
+		if isVerboseEnabled {
+			log.Info("MCP client initialized successfully",
+				"name", name,
+				"response", fmt.Sprintf("%+v", resp))
 		}
 
 		clients[name] = client
