@@ -159,10 +159,13 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 				"env", strings.Join(env, " "))
 		}
 		
+		// Create environment string with each var on a new line
+		envString := strings.Join(env, "\n")
+		
 		client, err := mcpclient.NewStdioMCPClient(
 			server.Command,
 			strings.Join(server.Args, " "),
-			strings.Join(env, " "))
+			envString)
 		if err != nil {
 			errMsg := fmt.Sprintf("failed to create MCP client for %s: %v", name, err)
 			log.Error(errMsg)
@@ -185,6 +188,18 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 				"command", server.Command,
 				"args", server.Args,
 				"env", server.Env)
+			
+			// Log the actual environment being passed to the server
+			envMap := make(map[string]string)
+			for _, envVar := range env {
+				parts := strings.SplitN(envVar, "=", 2)
+				if len(parts) == 2 {
+					envMap[parts[0]] = parts[1]
+				}
+			}
+			log.Info("Full environment for server", 
+				"name", name,
+				"env", envMap)
 		} else {
 			log.Info("Initializing server...", "name", name)
 		}
