@@ -145,8 +145,8 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 	clients := make(map[string]*mcpclient.StdioMCPClient)
 
 	for name, server := range config.MCPServers {
-		// Create environment for the client
-		env := os.Environ() // Start with current environment
+		// Create environment string from configured environment variables only
+		var env []string
 		for key, value := range server.Env {
 			env = append(env, fmt.Sprintf("%s=%s", key, value))
 		}
@@ -156,11 +156,11 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 				"name", name,
 				"command", server.Command,
 				"args", strings.Join(server.Args, " "),
-				"env", strings.Join(env, " "))
+				"env", server.Env)
 		}
 		
 		// Create environment string with each var on a new line
-		envString := strings.Join(env, "\n")
+		envString := strings.Join(env, "\n") 
 		
 		client, err := mcpclient.NewStdioMCPClient(
 			server.Command,
