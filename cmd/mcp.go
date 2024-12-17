@@ -175,17 +175,28 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 				"env_length", len(envString))
 		}
 
+		if isVerboseEnabled {
+			log.Info("Creating MCP client with command output logging enabled", 
+				"name", name,
+				"command", server.Command)
+		}
+
 		client, err := mcpclient.NewStdioMCPClient(
 			server.Command,
 			strings.Join(server.Args, " "),
 			envString)
+		
+		// Log any server output
 		if err != nil {
-			errMsg := fmt.Sprintf("failed to create MCP client for %s: %v", name, err)
-			log.Error(errMsg,
-				"name", name,
-				"error", err,
-				"command", server.Command,
-				"args", strings.Join(server.Args, " "))
+			if exitErr, ok := err.(*exec.ExitError); ok {
+				errMsg := fmt.Sprintf("failed to create MCP client for %s: %v\nServer stderr: %s", 
+					name, err, string(exitErr.Stderr))
+				log.Error(errMsg,
+					"name", name,
+					"error", err,
+					"command", server.Command,
+					"args", strings.Join(server.Args, " "),
+					"stderr", string(exitErr.Stderr))
 			
 			// Log the error and clean up existing clients
 			for clientName, c := range clients {
