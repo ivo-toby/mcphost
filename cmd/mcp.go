@@ -171,7 +171,11 @@ func createMCPClients(
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		log.Info("Initializing server...", "name", name)
+		if rootCmd.Flags().Lookup("verbose").Value.String() == "true" {
+			log.Info("Initializing server with verbose logging...", "name", name, "command", server.Command, "args", server.Args, "env", server.Env)
+		} else {
+			log.Info("Initializing server...", "name", name)
+		}
 		initRequest := mcp.InitializeRequest{}
 		initRequest.Params.ProtocolVersion = mcp.LATEST_PROTOCOL_VERSION
 		initRequest.Params.ClientInfo = mcp.Implementation{
