@@ -285,12 +285,7 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 	return clients, nil
 }
 
-func handleSlashCommand(
-	prompt string,
-	mcpConfig *MCPConfig,
-	mcpClients map[string]*mcpclient.StdioMCPClient,
-	messages interface{},
-) (bool, error) {
+func handleSlashCommand(prompt string, mcpConfig *MCPConfig, mcpClients map[string]*mcpclient.StdioMCPClient, messages interface{}) (bool, error) {
 	if !strings.HasPrefix(prompt, "/") {
 		return false, nil
 	}
