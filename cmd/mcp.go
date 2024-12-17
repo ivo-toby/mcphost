@@ -188,7 +188,7 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 			
 			// Log the actual environment being passed to the server
 			envMap := make(map[string]string)
-			for _, envVar := range env {
+			for _, envVar := range processEnv {
 				parts := strings.SplitN(envVar, "=", 2)
 				if len(parts) == 2 {
 					envMap[parts[0]] = parts[1]
