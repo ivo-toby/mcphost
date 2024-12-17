@@ -145,10 +145,10 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 	clients := make(map[string]*mcpclient.StdioMCPClient)
 
 	for name, server := range config.MCPServers {
-		// Create environment string from configured environment variables only
-		var env []string
+		// Create environment for the server process
+		processEnv := os.Environ() // Start with current environment
 		for key, value := range server.Env {
-			env = append(env, fmt.Sprintf("%s=%s", key, value))
+			processEnv = append(processEnv, fmt.Sprintf("%s=%s", key, value))
 		}
 
 		if isVerboseEnabled {
@@ -159,13 +159,10 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 				"env", server.Env)
 		}
 		
-		// Create environment string with each var on a new line
-		envString := strings.Join(env, "\n") 
-		
 		client, err := mcpclient.NewStdioMCPClient(
 			server.Command,
 			strings.Join(server.Args, " "),
-			envString)
+			strings.Join(processEnv, "\n"))
 		if err != nil {
 			errMsg := fmt.Sprintf("failed to create MCP client for %s: %v", name, err)
 			log.Error(errMsg)
