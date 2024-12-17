@@ -103,8 +103,9 @@ func loadMCPConfig() (*MCPConfig, error) {
 		// Create default config
 		defaultConfig := MCPConfig{
 			MCPServers: make(map[string]struct {
-				Command string   `json:"command"`
-				Args    []string `json:"args"`
+				Command string            `json:"command"`
+				Args    []string         `json:"args"`
+				Env     map[string]string `json:"env,omitempty"`
 			}),
 		}
 
@@ -154,8 +155,8 @@ func createMCPClients(
 
 		client, err := mcpclient.NewStdioMCPClient(
 			server.Command,
-			append([]string{}, server.Args...),
-			mcpclient.WithEnv(env))
+			server.Args,
+			env)
 		if err != nil {
 			for _, c := range clients {
 				c.Close()
