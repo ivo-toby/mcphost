@@ -242,9 +242,10 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 		}
 
 		if isVerboseEnabled {
+			deadline, _ := initCtx.Deadline()
 			log.Info("Waiting for server response...", 
 				"name", name,
-				"remaining_time", initCtx.Deadline())
+				"remaining_time", deadline)
 		}
 
 		resp, err := client.Initialize(initCtx, initRequest)
