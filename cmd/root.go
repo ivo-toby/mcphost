@@ -42,10 +42,9 @@ It supports various tools through MCP servers and provides streaming responses.`
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runMCPHost()
 	},
+func init() {
 	rootCmd.PersistentFlags().
 		Bool("verbose", false, "enable verbose logging")
-
-func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
