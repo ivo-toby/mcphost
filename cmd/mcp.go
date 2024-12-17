@@ -155,8 +155,8 @@ func createMCPClients(
 
 		client, err := mcpclient.NewStdioMCPClient(
 			server.Command,
-			append([]string{}, server.Args...),
-			append([]string{}, env...))
+			strings.Join(server.Args, " "),
+			strings.Join(env, " "))
 		if err != nil {
 			for _, c := range clients {
 				c.Close()
