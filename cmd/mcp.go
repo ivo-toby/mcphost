@@ -66,10 +66,7 @@ type MCPConfig struct {
 	} `json:"mcpServers"`
 }
 
-func mcpToolsToAnthropicTools(
-	serverName string,
-	mcpTools []mcp.Tool,
-) []Tool {
+func mcpToolsToAnthropicTools(serverName string, mcpTools []mcp.Tool) []Tool {
 	anthropicTools := make([]Tool, len(mcpTools))
 
 	for i, tool := range mcpTools {
