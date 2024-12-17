@@ -34,14 +34,9 @@ const (
 	maxRetries     = 5 // Will reach close to max backoff
 )
 
-func isVerbose() bool {
-	if flag := rootCmd.Flags().Lookup("verbose"); flag != nil {
-		return flag.Value.String() == "true"
-	}
-	return false
-}
-
-var rootCmd = &cobra.Command{
+var (
+	isVerboseEnabled bool
+	rootCmd          = &cobra.Command{
 	Use:   "mcphost",
 	Short: "Chat with Claude 3.5 Sonnet or Ollama models",
 	Long: `MCPHost is a CLI tool that allows you to interact with Claude 3.5 Sonnet or Ollama models.
@@ -62,8 +57,10 @@ func init() {
 		StringVar(&configFile, "config", "", "config file (default is $HOME/mcp.json)")
 	rootCmd.PersistentFlags().
 		IntVar(&messageWindow, "message-window", 10, "number of messages to keep in context")
-	rootCmd.PersistentFlags().
-		Bool("verbose", false, "enable verbose logging")
+	verboseFlag := rootCmd.PersistentFlags().Bool("verbose", false, "enable verbose logging")
+	rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
+		isVerboseEnabled = *verboseFlag
+	}
 }
 
 func pruneMessages[T MessageParam | api.Message](messages []T) []T {

@@ -169,7 +169,7 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		if isVerbose() {
+		if isVerboseEnabled {
 			log.Info("Starting server initialization...", 
 				"name", name,
 				"command", server.Command,
@@ -191,7 +191,7 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 			for _, c := range clients {
 				c.Close()
 			}
-			if isVerbose() {
+			if isVerboseEnabled {
 				log.Error("Failed to initialize MCP client",
 					"name", name,
 					"error", err,
