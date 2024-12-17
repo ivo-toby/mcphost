@@ -36,7 +36,9 @@ const (
 
 var (
 	isVerboseEnabled bool
-	rootCmd          = &cobra.Command{
+)
+
+var rootCmd = &cobra.Command{
 	Use:   "mcphost",
 	Short: "Chat with Claude 3.5 Sonnet or Ollama models",
 	Long: `MCPHost is a CLI tool that allows you to interact with Claude 3.5 Sonnet or Ollama models.
@@ -52,8 +54,9 @@ func init() {
 	rootCmd.PersistentFlags().
 		IntVar(&messageWindow, "message-window", 10, "number of messages to keep in context")
 	verboseFlag := rootCmd.PersistentFlags().Bool("verbose", false, "enable verbose logging")
-	rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
+	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		isVerboseEnabled = *verboseFlag
+		return nil
 	}
 }
 
