@@ -167,15 +167,34 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 				"env", envString)
 		}
 		
+		if isVerboseEnabled {
+			log.Info("Attempting to create MCP client",
+				"name", name,
+				"command", server.Command,
+				"args", strings.Join(server.Args, " "),
+				"env_length", len(envString))
+		}
+
 		client, err := mcpclient.NewStdioMCPClient(
 			server.Command,
 			strings.Join(server.Args, " "),
 			envString)
 		if err != nil {
 			errMsg := fmt.Sprintf("failed to create MCP client for %s: %v", name, err)
-			log.Error(errMsg)
-			for _, c := range clients {
-				c.Close()
+			log.Error(errMsg,
+				"name", name,
+				"error", err,
+				"command", server.Command,
+				"args", strings.Join(server.Args, " "))
+			
+			// Log the error and clean up existing clients
+			for clientName, c := range clients {
+				log.Info("Cleaning up client", "name", clientName)
+				if closeErr := c.Close(); closeErr != nil {
+					log.Error("Error closing client during cleanup",
+						"name", clientName,
+						"error", closeErr)
+				}
 			}
 			return nil, fmt.Errorf(errMsg)
 		}
@@ -184,7 +203,7 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 			log.Info("MCP client created successfully", "name", name)
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		initCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
 		if isVerboseEnabled {
@@ -192,7 +211,8 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 				"name", name,
 				"command", server.Command,
 				"args", server.Args,
-				"env", server.Env)
+				"env", server.Env,
+				"timeout", "30s")
 			
 			// Log the actual environment being passed to the server
 			envMap := make(map[string]string)
@@ -221,7 +241,13 @@ func createMCPClients(config *MCPConfig) (map[string]*mcpclient.StdioMCPClient, 
 				"request", fmt.Sprintf("%+v", initRequest))
 		}
 
-		resp, err := client.Initialize(ctx, initRequest)
+		if isVerboseEnabled {
+			log.Info("Waiting for server response...", 
+				"name", name,
+				"remaining_time", initCtx.Deadline())
+		}
+
+		resp, err := client.Initialize(initCtx, initRequest)
 		if err != nil {
 			errMsg := fmt.Sprintf("failed to initialize MCP client for %s: %v", name, err)
 			log.Error(errMsg,
