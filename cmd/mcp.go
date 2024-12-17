@@ -152,11 +152,10 @@ func createMCPClients(
 			env = append(env, fmt.Sprintf("%s=%s", key, value))
 		}
 
-		opts := []mcpclient.Option{mcpclient.WithEnv(env)}
 		client, err := mcpclient.NewStdioMCPClient(
 			server.Command,
 			server.Args...,
-			opts...,
+			mcpclient.WithEnv(env),
 		)
 		if err != nil {
 			for _, c := range clients {
